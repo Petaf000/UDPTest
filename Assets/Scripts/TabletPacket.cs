@@ -29,6 +29,15 @@ public enum PlayerID :byte
     Player2 = 0x20,
 }
 
+public static class PlayerIDExtensions
+{
+    // P1‚È‚ç0AP2‚È‚ç1‚ð•Ô‚·
+    public static int ToIndex(this PlayerID id)
+    {
+        return (int)id >> 5;
+    }
+}
+
 [System.Serializable]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TabletData

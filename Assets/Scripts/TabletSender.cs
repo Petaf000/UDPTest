@@ -13,8 +13,6 @@ public class TabletSender : MonoBehaviour
     [SerializeField]
     private int port = 5000;
 
-    private bool _deviceId;
-
     private UdpClient _udpClient;
     private IPEndPoint _remoteEndPoint;
 
@@ -34,7 +32,6 @@ public class TabletSender : MonoBehaviour
     void OnDisable()
     {
         _udpClient?.Close();
-        EnhancedTouchSupport.Disable();
     }
 
     public void SendPacket(byte[] data)

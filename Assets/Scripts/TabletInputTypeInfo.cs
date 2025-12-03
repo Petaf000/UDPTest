@@ -73,7 +73,7 @@ public struct TabletInputTypeInfo : IInputStateTypeInfo
     public bool select;
 
     // タッチしてるかどうか
-    [InputControl(name = "TouchPress", layout = "Button", bit = 14)]
+    [InputControl(name = "TouchPress", layout = "Button", bit = 16)]
     public bool touchPress;
 
     // ジャイロ
@@ -148,7 +148,7 @@ public class TabletDevice : InputDevice
         gyro = GetChildControl<QuaternionControl>("Gyro");
 
         touchPos = GetChildControl<Vector2Control>("TouchPos");
-        press = GetChildControl<ButtonControl>("Press");
+        press = GetChildControl<ButtonControl>("TouchPress");
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

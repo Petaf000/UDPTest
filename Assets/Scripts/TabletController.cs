@@ -35,10 +35,13 @@ public class TabletController : MonoBehaviour
             TabletInputManager.Instance.IsDirty = false; // フラグを下ろす
             _lastSendTime = Time.time;
 
+
+            // 以下デバッグ用
             byte[] bytes = TabletInputManager.Instance.TabletData.Serialize();
             TabletData data = TabletData.Deserialize(bytes);
 
             float DecodeShort(short val) => val / 32767f;
+            float DecodeUShort(ushort val) => val / 65535f;
 
             bool isTouching = (data.HeaderAndTouch & 0x80) != 0;
             byte deviceId = (byte)(data.HeaderAndTouch & 0x7F);
@@ -54,7 +57,7 @@ public class TabletController : MonoBehaviour
 
             Debug.Log($"[Gyro] W: {DecodeShort(data.GyroW):F3} | X: {DecodeShort(data.GyroX):F3}");
 
-            Debug.Log($"[Touch] X (Raw): {data.TouchX} | Y (Raw): {data.TouchY}");
+            Debug.Log($"[Touch] X (Raw): {DecodeUShort(data.TouchX)} | Y (Raw): {DecodeUShort(data.TouchY)}");
             Debug.Log($"---------------------------");
         }
     }

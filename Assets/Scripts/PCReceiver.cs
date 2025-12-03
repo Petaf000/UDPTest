@@ -13,7 +13,7 @@ public class PCReceiver : MonoBehaviour
     private UdpClient udpServer;
     private bool isRunning = true;
 
-    private ConcurrentDictionary<int, TabletData> latestInputs = new ConcurrentDictionary<int, TabletData>();
+    private ConcurrentDictionary<PlayerID, TabletData> latestInputs = new ConcurrentDictionary<PlayerID, TabletData>();
 
     void Start()
     {
@@ -32,10 +32,10 @@ public class PCReceiver : MonoBehaviour
         // InputSystemへの注入はメインスレッドで行う必要がある
         foreach (var kvp in latestInputs)
         {
-            int playerId = kvp.Key;
+            PlayerID playerId = kvp.Key;
             TabletData data = kvp.Value;
 
-            // TODO: TabletInputにデータを注入するコードをここに追加
+            TabletDeviceDriver.Instance.InjectData(playerId, data);
         }
     }
 
@@ -68,10 +68,12 @@ public class PCReceiver : MonoBehaviour
 
     private void DeserializePacket(byte[] bytes)
     {
+
+        Debug.Log($"Received packet of size {bytes.Length} bytes");
         var data = TabletData.Deserialize(bytes);
 
-        byte playerId = (byte)(data.HeaderAndTouch & 0x7F);
-        if (playerId != (byte)PlayerID.Player1 && playerId != (byte)PlayerID.Player2) return;// 登録されてないIDは無視
+        PlayerID playerId = (PlayerID)(data.HeaderAndTouch & 0x7F);
+        if (playerId != PlayerID.Player1 && playerId != PlayerID.Player2) return;
 
         latestInputs.AddOrUpdate(playerId, data, (key, oldValue) => data);
     }
