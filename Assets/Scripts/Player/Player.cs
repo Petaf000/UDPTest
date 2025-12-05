@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         inputActions = new TabletInputAction();
-
+/*
         TabletDevice device = null;
 
         if (playerID == PlayerID.Player1)
@@ -25,9 +25,10 @@ public class Player : MonoBehaviour
 
         if (device != null)
             inputActions.devices = new InputDevice[] { device };
-
-        inputActions.TabletInput.LeftStick.performed += ctx => Move(ctx.ReadValue<Vector2>());
-        inputActions.TabletInput.ButtonSouth.performed += ctx => Jump();
+*/
+        inputActions.PlayerInput.Move.performed += ctx => Move(ctx.ReadValue<Vector2>());
+        inputActions.PlayerInput.Move.canceled += ctx => Move(new Vector2(0,0));
+        inputActions.PlayerInput.A.performed += ctx => Jump();
 
         inputActions.Enable();
     }
@@ -47,6 +48,7 @@ public class Player : MonoBehaviour
 
     public void Move(Vector2 inputVal)
     {
+        Debug.Log($"Moving: {inputVal}");
         moveInput = inputVal;
     }
 

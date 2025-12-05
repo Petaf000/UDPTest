@@ -27,7 +27,7 @@ public class PCReceiver : MonoBehaviour
         udpServer?.Dispose();
     }
 
-    void Update()
+    private void Update()
     {
         // InputSystemへの注入はメインスレッドで行う必要がある
         foreach (var kvp in latestInputs)
@@ -48,7 +48,6 @@ public class PCReceiver : MonoBehaviour
         {
             try
             {
-                // 非同期で受信待機
                 var result = await udpServer.ReceiveAsync();
 
                 // 受信処理
@@ -68,8 +67,6 @@ public class PCReceiver : MonoBehaviour
 
     private void DeserializePacket(byte[] bytes)
     {
-
-        Debug.Log($"Received packet of size {bytes.Length} bytes");
         var data = TabletData.Deserialize(bytes);
 
         PlayerID playerId = (PlayerID)(data.HeaderAndTouch & 0x7F);
