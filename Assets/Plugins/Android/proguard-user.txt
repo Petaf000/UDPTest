@@ -1,0 +1,2 @@
+# OverlayControllerクラスを難読化（名前変更・削除）しないようにする命令
+-keep class com.PETA.UDPTest.OverlayController { *; }

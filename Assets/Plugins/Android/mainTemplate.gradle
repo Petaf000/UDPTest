@@ -5,6 +5,11 @@ apply from: '../shared/keepUnitySymbols.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.core:core:1.10.1'
+
+    // 【追加】Kotlinのバージョンを1.8.10に統一して重複エラーを消すための記述
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10'
 **DEPS**}
 
 android {
@@ -42,6 +47,17 @@ android {
         ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
     }**PACKAGING**
 }
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "1.8.10"
+            }
+        }
+    }
+}
+
 **IL_CPP_BUILD_SETUP**
 **SOURCE_BUILD_SETUP**
 **EXTERNAL_SOURCES**
