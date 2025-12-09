@@ -34,7 +34,7 @@ public class PCReceiver : MonoBehaviour
         {
             PlayerID playerId = kvp.Key;
             TabletData data = kvp.Value;
-
+            
             TabletDeviceDriver.Instance.InjectData(playerId, data);
         }
     }
@@ -67,6 +67,7 @@ public class PCReceiver : MonoBehaviour
 
     private void DeserializePacket(byte[] bytes)
     {
+        Debug.Log("éÛêM");
         var data = TabletData.Deserialize(bytes);
 
         PlayerID playerId = (PlayerID)(data.HeaderAndTouch & 0x7F);

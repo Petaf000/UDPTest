@@ -393,6 +393,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "NormalizedPointer",
+                    "type": "Value",
+                    "id": "731ab567-f130-48e6-9514-23dec1394368",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -613,6 +622,17 @@
                     "processors": "",
                     "groups": ";Touch",
                     "action": "Pointer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9618400-14d4-46e4-885c-0d1af45a419b",
+                    "path": "<TabletController>/NormalizedTouchPos",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";TabletController",
+                    "action": "NormalizedPointer",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

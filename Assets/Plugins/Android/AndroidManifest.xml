@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.PETA.UDPTest"> <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+                     android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" /> 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />   
+
     <application>
-        <!--Used when Application Entry is set to Activity, otherwise remove this activity block-->
         <activity android:exported="true" android:name="com.unity3d.player.UnityPlayerActivity"
-                  android:theme="@style/Theme.Transparent">
+                  android:theme="@style/Theme.Transparent"
+                  android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
-        <!--Used when Application Entry is set to GameActivity, otherwise remove this activity block-->
+        
         <activity android:exported="true" android:name="com.unity3d.player.UnityPlayerGameActivity"
-                  android:theme="@style/Theme.Transparent">
+                  android:theme="@style/Theme.Transparent"
+                  android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -22,5 +37,18 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="android.app.lib_name" android:value="game" />
         </activity>
+	
+	<service android:name=".OverlayController" 
+                 android:enabled="true" 
+                 android:exported="false" 
+		 android:foregroundServiceType="connectedDevice" />
+
+        <receiver android:name=".OverlayController$ToggleReceiver"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="com.PETA.UDPTest.ACTION_TOGGLE" />
+            </intent-filter>
+        </receiver>
     </application>
+
 </manifest>

@@ -83,6 +83,9 @@ public struct TabletInputTypeInfo : IInputStateTypeInfo
     // タッチ座標
     [InputControl(name = "TouchPos", layout = "Vector2")]
     public Vector2 touchPos;
+
+    [InputControl(name = "NormalizedTouchPos", layout = "Vector2")]
+    public Vector2 normalizedTouchPos;
 }
 
 [InputControlLayout(stateType = typeof(TabletInputTypeInfo), displayName = "Tablet Controller")]
@@ -115,6 +118,7 @@ public class TabletDevice : InputDevice
     public QuaternionControl gyro { get; private set; }
 
     public Vector2Control touchPos { get; private set; }
+    public Vector2Control normalizedTouchPos { get; private set; }
     public ButtonControl press { get; private set; }
 
     protected override void FinishSetup()
@@ -148,6 +152,7 @@ public class TabletDevice : InputDevice
         gyro = GetChildControl<QuaternionControl>("Gyro");
 
         touchPos = GetChildControl<Vector2Control>("TouchPos");
+        normalizedTouchPos = GetChildControl<Vector2Control>("NormalizedTouchPos");
         press = GetChildControl<ButtonControl>("TouchPress");
     }
 

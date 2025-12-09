@@ -103,6 +103,14 @@ public class TabletDeviceDriver : SingletonMonoBehaviour<TabletDeviceDriver>
 
             targetDevice.press.WriteValueIntoEvent(isTouching ? 1f : 0f, stateEvent);
 
+            targetDevice.normalizedTouchPos.WriteValueIntoEvent(
+                new Vector2(
+                    DecodeUShort(data.TouchX),
+                    DecodeUShort(data.TouchY)
+                ),
+                stateEvent
+            );
+
             targetDevice.touchPos.WriteValueIntoEvent(
                 new Vector2(
                     DecodeUShort(data.TouchX) * Screen.width,

@@ -479,6 +479,15 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""NormalizedPointer"",
+                    ""type"": ""Value"",
+                    ""id"": ""731ab567-f130-48e6-9514-23dec1394368"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -699,6 +708,17 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Touch"",
                     ""action"": ""Pointer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9618400-14d4-46e4-885c-0d1af45a419b"",
+                    ""path"": ""<TabletController>/NormalizedTouchPos"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";TabletController"",
+                    ""action"": ""NormalizedPointer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1329,6 +1349,7 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         m_TabletInput_RightTrigger = m_TabletInput.FindAction("RightTrigger", throwIfNotFound: true);
         m_TabletInput_PointerPress = m_TabletInput.FindAction("PointerPress", throwIfNotFound: true);
         m_TabletInput_Pointer = m_TabletInput.FindAction("Pointer", throwIfNotFound: true);
+        m_TabletInput_NormalizedPointer = m_TabletInput.FindAction("NormalizedPointer", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1638,6 +1659,7 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_TabletInput_RightTrigger;
     private readonly InputAction m_TabletInput_PointerPress;
     private readonly InputAction m_TabletInput_Pointer;
+    private readonly InputAction m_TabletInput_NormalizedPointer;
     /// <summary>
     /// Provides access to input actions defined in input action map "TabletInput".
     /// </summary>
@@ -1730,6 +1752,10 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Pointer => m_Wrapper.m_TabletInput_Pointer;
         /// <summary>
+        /// Provides access to the underlying input action "TabletInput/NormalizedPointer".
+        /// </summary>
+        public InputAction @NormalizedPointer => m_Wrapper.m_TabletInput_NormalizedPointer;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_TabletInput; }
@@ -1815,6 +1841,9 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @Pointer.started += instance.OnPointer;
             @Pointer.performed += instance.OnPointer;
             @Pointer.canceled += instance.OnPointer;
+            @NormalizedPointer.started += instance.OnNormalizedPointer;
+            @NormalizedPointer.performed += instance.OnNormalizedPointer;
+            @NormalizedPointer.canceled += instance.OnNormalizedPointer;
         }
 
         /// <summary>
@@ -1886,6 +1915,9 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @Pointer.started -= instance.OnPointer;
             @Pointer.performed -= instance.OnPointer;
             @Pointer.canceled -= instance.OnPointer;
+            @NormalizedPointer.started -= instance.OnNormalizedPointer;
+            @NormalizedPointer.performed -= instance.OnNormalizedPointer;
+            @NormalizedPointer.canceled -= instance.OnNormalizedPointer;
         }
 
         /// <summary>
@@ -2417,6 +2449,13 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPointer(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "NormalizedPointer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNormalizedPointer(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

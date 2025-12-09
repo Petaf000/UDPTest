@@ -34,12 +34,8 @@ public class TabletTouchInjector : MonoBehaviour
     {
         if (myDevice == null) return;
 
-        Vector2 rawPos = myDevice.touchPos.ReadValue();
+        Vector2 screenPos = myDevice.touchPos.ReadValue();
         bool isPressed = myDevice.press.isPressed;
-
-        Vector2 screenPos = rawPos;
-        screenPos.x *= Screen.width;
-        screenPos.y *= Screen.height;
 
         pointerData.delta = screenPos - pointerData.position;
         pointerData.position = screenPos;
