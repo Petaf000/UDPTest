@@ -541,6 +541,7 @@ GameObject:
   - component: {fileID: 304862927}
   - component: {fileID: 304862928}
   - component: {fileID: 304862929}
+  - component: {fileID: 304862930}
   m_Layer: 0
   m_Name: AndroidSystem
   m_TagString: Untagged
@@ -587,6 +588,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b276f7210d381d4db4d69cf217127c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &304862930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 304862925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dc2a8e07ee82a04696fc6b201ba9750, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugText: {fileID: 700199848}
 --- !u!1 &312588886
 GameObject:
   m_ObjectHideFlags: 0
@@ -3351,7 +3365,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0ffabf3bb5118f4ebbd725dfe68c87e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugText: {fileID: 700199848}
   targetDeviceName: Pico
 --- !u!65 &1697330497
 BoxCollider:

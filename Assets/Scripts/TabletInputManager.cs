@@ -87,4 +87,10 @@ public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
         _inputActions.TabletInput.Select.performed += ctx => { TabletData.Set(ButtonID.Select, true); IsDirty = true; };
         _inputActions.TabletInput.Select.canceled += ctx => { TabletData.Set(ButtonID.Select, false); IsDirty = true; };
     }
+
+    public void InjectGyroData(Quaternion data)
+    {
+        TabletData.Set(AxisID.Gyro, data);
+        IsDirty = true;
+    }
 }

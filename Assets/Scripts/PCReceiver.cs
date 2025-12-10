@@ -18,6 +18,11 @@ public class PCReceiver : MonoBehaviour
     void Start()
     {
         StartUdpReceiver();
+
+        if (Display.displays.Length > 1)
+        {
+            Display.displays[1].Activate(1920, 1200, 60);
+        }
     }
 
     void OnDisable()

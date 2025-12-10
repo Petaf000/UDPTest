@@ -18,7 +18,7 @@ public enum AxisID
     LeftStickX, LeftStickY,
     RightStickX, RightStickY,
 
-    GyroX, GyroY, GyroZ, GyroW,
+    GyroX, GyroY, GyroZ, GyroW, Gyro,
 
     TouchX, TouchY
 }
@@ -99,6 +99,17 @@ public struct TabletData
             case AxisID.TouchX: TouchX = PixelToUShort(value, Screen.width); break;
             case AxisID.TouchY: TouchY = PixelToUShort(value, Screen.height); break;
         }
+    }
+
+    public void Set(AxisID id, Quaternion value)
+    {
+        if (id != AxisID.Gyro)
+            return;
+
+        GyroX = FloatToShort(value.x);
+        GyroY = FloatToShort(value.y);
+        GyroZ = FloatToShort(value.z);
+        GyroW = FloatToShort(value.w);
     }
 
     public byte[] Serialize()

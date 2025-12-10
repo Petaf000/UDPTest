@@ -120,6 +120,7 @@ public class PicoWController : MonoBehaviour
 
         if (hasNewRotation)
         {
+            TabletInputManager.Instance.InjectGyroData(latestRotation);
             transform.localRotation = latestRotation;
             hasNewRotation = false;
         }
