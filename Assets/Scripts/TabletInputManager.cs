@@ -13,6 +13,8 @@ public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
         _inputActions = new TabletInputAction();
         _inputActions.Enable();
 
+
+        Debug.Log("[Screen]" + Screen.width + "x" + Screen.height + "y");
         _inputActions.TabletInput.LeftStick.performed += ctx =>
         {
             Vector2 value = ctx.ReadValue<Vector2>();

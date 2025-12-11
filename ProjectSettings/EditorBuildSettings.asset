@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PCScene.unity
     guid: 836c0ea5bb011db499d3fe89d28ab2e0
+  - enabled: 0
+    path: Assets/Scenes/DisplayNumSerch.unity
+    guid: 0bfb2291f230bde4688019f7efec4f9b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
