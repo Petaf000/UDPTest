@@ -22,7 +22,6 @@ public class PCReceiver : MonoBehaviour
         if (Display.displays.Length > 1)
         {
             Display.displays[1].Activate();
-            Display.displays[2].Activate();
         }
     }
 
@@ -40,7 +39,7 @@ public class PCReceiver : MonoBehaviour
         {
             PlayerID playerId = kvp.Key;
             TabletData data = kvp.Value;
-            
+
             TabletDeviceDriver.Instance.InjectData(playerId, data);
         }
     }
@@ -80,5 +79,7 @@ public class PCReceiver : MonoBehaviour
         if (playerId != PlayerID.Player1 && playerId != PlayerID.Player2) return;
 
         latestInputs.AddOrUpdate(playerId, data, (key, oldValue) => data);
+
+        //lastReceiveTimes.AddOrUpdate(playerId, DateTime.Now, (key, oldValue) => DateTime.Now);
     }
 }

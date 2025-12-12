@@ -6,11 +6,16 @@ public class TabletController : MonoBehaviour
 {
     [SerializeField]
     private PlayerID playerID = PlayerID.Player1;
+    [SerializeField]
+    private PicoWController picoWController;
 
     private TabletSender sender;
 
     private float _lastSendTime;
     private const float SendInterval = 1f / 120f;
+    private const float KeepAliveInterval = 0.2f;
+
+    private bool wasLbPressed = false;
 
     void Start()
     {
@@ -28,37 +33,25 @@ public class TabletController : MonoBehaviour
     }
     private void Update()
     {
-        // 変更があり、かつ前回の送信から時間が経っていれば送る
-        if (TabletInputManager.Instance.IsDirty && Time.time - _lastSendTime >= SendInterval)
+        bool isKeepAliveTime = Time.time - _lastSendTime >= KeepAliveInterval;
+
+        if ((TabletInputManager.Instance.IsDirty || isKeepAliveTime) && Time.time - _lastSendTime >= SendInterval)
         {
             sender.SendPacket(TabletInputManager.Instance.TabletData.Serialize());
             TabletInputManager.Instance.IsDirty = false; // フラグを下ろす
             _lastSendTime = Time.time;
 
-
-            // 以下デバッグ用
-            byte[] bytes = TabletInputManager.Instance.TabletData.Serialize();
-            TabletData data = TabletData.Deserialize(bytes);
-
-            float DecodeShort(short val) => val / 32767f;
-            float DecodeUShort(ushort val) => val / 65535f;
-
-            bool isTouching = (data.HeaderAndTouch & 0x80) != 0;
-            byte deviceId = (byte)(data.HeaderAndTouch & 0x7F);
-
-            Debug.Log($"--- Tablet Packet State ---");
-            Debug.Log($"[Header] ID: 0x{deviceId:X2} | Touching: {isTouching}");
-
-            string binaryButtons = Convert.ToString(data.Buttons, 2).PadLeft(16, '0');
-            Debug.Log($"[Buttons] Hex: 0x{data.Buttons:X4} | Binary: {binaryButtons}");
-
-            Debug.Log($"[LStick] X: {DecodeShort(data.LStickX):F3} | Y: {DecodeShort(data.LStickY):F3}");
-            Debug.Log($"[RStick] X: {DecodeShort(data.RStickX):F3} | Y: {DecodeShort(data.RStickY):F3}");
-
-            Debug.Log($"[Gyro] W: {DecodeShort(data.GyroW):F3} | X: {DecodeShort(data.GyroX):F3}");
-
-            Debug.Log($"[Touch] X (Raw): {DecodeUShort(data.TouchX)} | Y (Raw): {DecodeUShort(data.TouchY)}");
-            Debug.Log($"---------------------------");
+            // FPSモード用にジャイロのオンオフハードコードしてます
+            bool isLbPressed = TabletDeviceDriver.Instance.GetButton(TabletInputManager.Instance.TabletData, ButtonID.LB);
+            if (isLbPressed && !wasLbPressed)
+            {
+                if (picoWController.isSensorOn)
+                    picoWController?.StopSensorStream();
+                else
+                    picoWController?.StartSensorStream();
+                Debug.Log($"LB Button Pressed: Sensor Stream {(picoWController.isSensorOn ? "Stopped" : "Started")}");
+            }
+            wasLbPressed = isLbPressed;
         }
     }
 }

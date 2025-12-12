@@ -9,6 +9,7 @@ public class TabletTouchInjector : MonoBehaviour
 {
     [SerializeField] private GraphicRaycaster targetRaycaster;
     [SerializeField] private PlayerID deviceIndex = PlayerID.Player1;
+    [SerializeField] private RectTransform cursorIcon;
 
     private GameObject currentPressedObject;
     private GameObject currentDraggingObject;
@@ -16,6 +17,7 @@ public class TabletTouchInjector : MonoBehaviour
     private PointerEventData pointerData;
     private EventSystem eventSystem;
     private TabletDevice myDevice;
+    private Camera uiCamera;
 
     // 前フレームで押していたかを判定するフラグ
     private bool wasPressed = false;
@@ -31,20 +33,38 @@ public class TabletTouchInjector : MonoBehaviour
 
         pointerData = new PointerEventData(eventSystem);
         myDevice = deviceIndex == PlayerID.Player1 ? TabletDeviceDriver.Instance.DeviceP1 : TabletDeviceDriver.Instance.DeviceP2;
+        uiCamera = targetRaycaster.eventCamera;
+        pointerData.displayIndex = uiCamera != null ? uiCamera.targetDisplay : 0;
     }
 
     void Update()
     {
         if (myDevice == null) return;
 
+        float targetWidth = (uiCamera != null) ? uiCamera.pixelWidth : Screen.width;
+        float targetHeight = (uiCamera != null) ? uiCamera.pixelHeight : Screen.height;
+
         // 1. 座標の計算
         Vector2 normalizedPosition = myDevice.normalizedTouchPos.ReadValue();
         Vector2 screenPos = new Vector2(
-            normalizedPosition.x * Screen.width,
-            normalizedPosition.y * Screen.height
+            normalizedPosition.x * targetWidth,
+            normalizedPosition.y * targetHeight
         );
 
         bool isPressed = myDevice.press.isPressed;
+
+        if (cursorIcon != null && isPressed)
+        {
+            Camera uiCamera = targetRaycaster.eventCamera;
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                cursorIcon.parent as RectTransform,
+                pointerData.position,
+                uiCamera,
+                out localPoint
+            );
+            cursorIcon.anchoredPosition = localPoint;
+        }
 
         // 2. Delta（移動量）の計算修正
         // タッチした瞬間(isPressed == true && wasPressed == false)は
@@ -71,8 +91,8 @@ public class TabletTouchInjector : MonoBehaviour
             pointerData.position = screenPos;
         }
 
-        // 3. Raycast実行
         List<RaycastResult> results = new List<RaycastResult>();
+        // 3. Raycast実行
         targetRaycaster.Raycast(pointerData, results);
 
         // Raycast結果を更新

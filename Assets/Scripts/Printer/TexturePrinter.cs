@@ -1,7 +1,6 @@
 using System.Collections;
 using System.IO;
 using UnityEngine;
-// 以下の2つを使うために、上の「事前準備」が必要です
 using System.Drawing;
 using System.Drawing.Printing;
 

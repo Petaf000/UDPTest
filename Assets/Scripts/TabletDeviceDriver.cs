@@ -31,10 +31,17 @@ public class TabletDeviceDriver : SingletonMonoBehaviour<TabletDeviceDriver>
         if (DeviceP2 != null) InputSystem.RemoveDevice(DeviceP2);
     }
 
-    float DecodeShort(short val) => val / 32767f;
+    float DecodeShort(short val)
+    {
+        float value = val / 32767f;
+        // Deadzone
+        if (Mathf.Abs(value) < 0.05f)
+            return 0f;
+        return value;
+    }
     float DecodeUShort(ushort val) => val / 65535f;
 
-    bool GetButton(TabletData data, ButtonID id)
+    public bool GetButton(TabletData data, ButtonID id)
     {
         return (data.Buttons & (1 << (int)id)) != 0;
     }

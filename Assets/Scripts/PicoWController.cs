@@ -15,7 +15,6 @@ public class PicoWController : MonoBehaviour
     private string descUUID = "00002902-0000-1000-8000-00805f9b34fb";
     private string writeUUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 
-    // Javaオブジェクトの参照
     private AndroidJavaObject bluetoothAdapter;
     private AndroidJavaObject bluetoothLeScanner;
     private AndroidJavaObject unityScanCallbackJavaObject;
@@ -23,30 +22,33 @@ public class PicoWController : MonoBehaviour
     private AndroidJavaObject unityGattCallbackJavaObject;
     private BleGattCallbackProxy gattCallbackProxy;
 
-    // ★追加: ここに定義が必要です！
     private AndroidJavaObject currentGatt;
 
-    // データ処理用
     private Queue<string> logQueue = new Queue<string>();
     private Quaternion latestRotation = Quaternion.identity;
     private bool hasNewRotation = false;
     private bool isConnected = false;
 
-    // ★ボタンを押した時 (Start)
+    private Quaternion coordinateCorrection;
+    private float initialObjectYaw;
+    private float yawOffset = 0f;
+    private bool calibrationRequested = false;
+
+    public bool isSensorOn { get; private set; } = false;
+
     public void StartSensorStream()
     {
         if (currentGatt == null || !isConnected) return;
 
         Log("Mode: Active (High Perf)");
 
-        // 1. 通信頻度を「高速 (High: 1)」にする
         SetConnectionPriority(1);
 
-        // 2. Picoに「START」と命令を送る
         SendCommand("START");
+        calibrationRequested = true;
+        isSensorOn = true;
     }
 
-    // ★ボタンを離した時 (Stop)
     public void StopSensorStream()
     {
         if (currentGatt == null || !isConnected) return;
@@ -58,6 +60,7 @@ public class PicoWController : MonoBehaviour
 
         // 2. 通信頻度を「低速/バランス (Balanced: 0, or LowPower: 2)」にする
         SetConnectionPriority(2);
+        isSensorOn = false;
     }
 
     // --- コマンド送信処理 ---
@@ -87,7 +90,6 @@ public class PicoWController : MonoBehaviour
         }
     }
 
-    // --- Priority変更ヘルパー ---
     private void SetConnectionPriority(int priority)
     {
         try
@@ -104,6 +106,9 @@ public class PicoWController : MonoBehaviour
         {
             InitializeBluetooth();
         }
+
+        coordinateCorrection = Quaternion.Euler(-90, 0, 0) * Quaternion.Euler(0, 180, 180);
+        initialObjectYaw = transform.eulerAngles.y;
     }
 
     void Update()
@@ -120,8 +125,25 @@ public class PicoWController : MonoBehaviour
 
         if (hasNewRotation)
         {
-            TabletInputManager.Instance.InjectGyroData(latestRotation);
-            transform.localRotation = latestRotation;
+            Quaternion currentSensorUnity = coordinateCorrection * latestRotation;
+            Vector3 currentEuler = currentSensorUnity.eulerAngles;
+
+            if (calibrationRequested)
+            {
+                yawOffset = Mathf.DeltaAngle(currentEuler.y, initialObjectYaw);
+
+                calibrationRequested = false;
+                Log($"Calibrated! SensorY:{currentEuler.y:F1} -> TargetY:{initialObjectYaw:F1} (Offset:{yawOffset:F1})");
+            }
+
+            float finalX = -currentEuler.x;
+            float finalY = currentEuler.y + yawOffset;
+            float finalZ = -currentEuler.z;
+
+            transform.rotation = Quaternion.Euler(finalX, finalY, finalZ);
+
+            TabletInputManager.Instance.InjectGyroData(transform.rotation);
+
             hasNewRotation = false;
         }
     }
@@ -211,24 +233,19 @@ public class PicoWController : MonoBehaviour
             using (var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
             {
                 gattCallbackProxy = new BleGattCallbackProxy(
-                    // onConnectionStateChange
                     (gatt, status, newState) => {
-                        if (newState == 2) // Connected
+                        if (newState == 2)
                         {
-                            // ★修正: ここで currentGatt に保存します！
                             currentGatt = gatt;
 
                             Log("Connected! Discovering Services...");
                             OnConnectedSuccess();
                             gatt.Call<bool>("discoverServices");
-
-                            // 接続直後は一旦 StopSensorStream 状態（省電力）にするのがおすすめ
-                            // gatt.Call<bool>("requestConnectionPriority", 1); // ここでは呼ばず、ボタンに任せる
                         }
                         else if (newState == 0) // Disconnected
                         {
                             OnDisconnected();
-                            currentGatt = null; // 参照を削除
+                            currentGatt = null;
                             if (gatt != null) gatt.Call("close");
                         }
                     },
@@ -283,7 +300,6 @@ public class PicoWController : MonoBehaviour
                         gatt.Call<bool>("writeDescriptor", descriptor);
                         Log("Notify Setup Done (Wait for START cmd)");
 
-                        // ★念のため接続完了時はストップ状態にしておく
                         StopSensorStream();
                     }
                 }
@@ -309,7 +325,7 @@ public class PicoWController : MonoBehaviour
         float z = BitConverter.ToSingle(data, 8);
         float w = BitConverter.ToSingle(data, 12);
 
-        Quaternion rot = new Quaternion(-x, z, y, w);
+        Quaternion rot = new Quaternion(x, y, z, w);
 
         latestRotation = rot;
         hasNewRotation = true;
