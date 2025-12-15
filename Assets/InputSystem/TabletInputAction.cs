@@ -165,9 +165,18 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""TouchPos"",
+                    ""name"": ""TouchPos1"",
                     ""type"": ""Value"",
                     ""id"": ""afc67fac-07ae-49cc-af33-97734cec48ee"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""TouchPos2"",
+                    ""type"": ""Value"",
+                    ""id"": ""c799dca8-2f8b-4ce7-ba78-815aa2d3807e"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -275,11 +284,22 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""3c566b01-939c-4265-ae2c-a497680e5f8d"",
-                    ""path"": ""<TabletController>/TouchPos"",
+                    ""path"": ""<TabletController>/TouchPos0"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";TabletController"",
-                    ""action"": ""TouchPos"",
+                    ""action"": ""TouchPos1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""44444a0c-ca50-42f5-ac89-a5d8f811e5d9"",
+                    ""path"": ""<TabletController>/TouchPos1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";TabletController"",
+                    ""action"": ""TouchPos2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -461,33 +481,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""PointerPress"",
-                    ""type"": ""Button"",
-                    ""id"": ""132f7886-f969-4ec0-9cf7-63bf5e505424"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Pointer"",
-                    ""type"": ""Value"",
-                    ""id"": ""13be0704-2ad0-462e-bd46-a95652faec28"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""NormalizedPointer"",
-                    ""type"": ""Value"",
-                    ""id"": ""731ab567-f130-48e6-9514-23dec1394368"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -686,39 +679,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""RightTrigger"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e476820c-e22d-4f08-a96a-8bea8dfb489d"",
-                    ""path"": ""<Pointer>/press"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Touch"",
-                    ""action"": ""PointerPress"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ce84f6c3-a7ec-443e-b9c3-76b05cf38fb8"",
-                    ""path"": ""<Pointer>/position"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Touch"",
-                    ""action"": ""Pointer"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""d9618400-14d4-46e4-885c-0d1af45a419b"",
-                    ""path"": ""<TabletController>/NormalizedTouchPos"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";TabletController"",
-                    ""action"": ""NormalizedPointer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1314,7 +1274,8 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         m_PlayerInput_Y = m_PlayerInput.FindAction("Y", throwIfNotFound: true);
         m_PlayerInput_Left = m_PlayerInput.FindAction("Left", throwIfNotFound: true);
         m_PlayerInput_Right = m_PlayerInput.FindAction("Right", throwIfNotFound: true);
-        m_PlayerInput_TouchPos = m_PlayerInput.FindAction("TouchPos", throwIfNotFound: true);
+        m_PlayerInput_TouchPos1 = m_PlayerInput.FindAction("TouchPos1", throwIfNotFound: true);
+        m_PlayerInput_TouchPos2 = m_PlayerInput.FindAction("TouchPos2", throwIfNotFound: true);
         m_PlayerInput_Gyro = m_PlayerInput.FindAction("Gyro", throwIfNotFound: true);
         // TabletInput
         m_TabletInput = asset.FindActionMap("TabletInput", throwIfNotFound: true);
@@ -1336,9 +1297,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         m_TabletInput_LeftTrigger = m_TabletInput.FindAction("LeftTrigger", throwIfNotFound: true);
         m_TabletInput_RightShoulder = m_TabletInput.FindAction("RightShoulder", throwIfNotFound: true);
         m_TabletInput_RightTrigger = m_TabletInput.FindAction("RightTrigger", throwIfNotFound: true);
-        m_TabletInput_PointerPress = m_TabletInput.FindAction("PointerPress", throwIfNotFound: true);
-        m_TabletInput_Pointer = m_TabletInput.FindAction("Pointer", throwIfNotFound: true);
-        m_TabletInput_NormalizedPointer = m_TabletInput.FindAction("NormalizedPointer", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1441,7 +1399,8 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerInput_Y;
     private readonly InputAction m_PlayerInput_Left;
     private readonly InputAction m_PlayerInput_Right;
-    private readonly InputAction m_PlayerInput_TouchPos;
+    private readonly InputAction m_PlayerInput_TouchPos1;
+    private readonly InputAction m_PlayerInput_TouchPos2;
     private readonly InputAction m_PlayerInput_Gyro;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerInput".
@@ -1487,9 +1446,13 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Right => m_Wrapper.m_PlayerInput_Right;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerInput/TouchPos".
+        /// Provides access to the underlying input action "PlayerInput/TouchPos1".
         /// </summary>
-        public InputAction @TouchPos => m_Wrapper.m_PlayerInput_TouchPos;
+        public InputAction @TouchPos1 => m_Wrapper.m_PlayerInput_TouchPos1;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInput/TouchPos2".
+        /// </summary>
+        public InputAction @TouchPos2 => m_Wrapper.m_PlayerInput_TouchPos2;
         /// <summary>
         /// Provides access to the underlying input action "PlayerInput/Gyro".
         /// </summary>
@@ -1544,9 +1507,12 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @Right.started += instance.OnRight;
             @Right.performed += instance.OnRight;
             @Right.canceled += instance.OnRight;
-            @TouchPos.started += instance.OnTouchPos;
-            @TouchPos.performed += instance.OnTouchPos;
-            @TouchPos.canceled += instance.OnTouchPos;
+            @TouchPos1.started += instance.OnTouchPos1;
+            @TouchPos1.performed += instance.OnTouchPos1;
+            @TouchPos1.canceled += instance.OnTouchPos1;
+            @TouchPos2.started += instance.OnTouchPos2;
+            @TouchPos2.performed += instance.OnTouchPos2;
+            @TouchPos2.canceled += instance.OnTouchPos2;
             @Gyro.started += instance.OnGyro;
             @Gyro.performed += instance.OnGyro;
             @Gyro.canceled += instance.OnGyro;
@@ -1585,9 +1551,12 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @Right.started -= instance.OnRight;
             @Right.performed -= instance.OnRight;
             @Right.canceled -= instance.OnRight;
-            @TouchPos.started -= instance.OnTouchPos;
-            @TouchPos.performed -= instance.OnTouchPos;
-            @TouchPos.canceled -= instance.OnTouchPos;
+            @TouchPos1.started -= instance.OnTouchPos1;
+            @TouchPos1.performed -= instance.OnTouchPos1;
+            @TouchPos1.canceled -= instance.OnTouchPos1;
+            @TouchPos2.started -= instance.OnTouchPos2;
+            @TouchPos2.performed -= instance.OnTouchPos2;
+            @TouchPos2.canceled -= instance.OnTouchPos2;
             @Gyro.started -= instance.OnGyro;
             @Gyro.performed -= instance.OnGyro;
             @Gyro.canceled -= instance.OnGyro;
@@ -1646,9 +1615,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_TabletInput_LeftTrigger;
     private readonly InputAction m_TabletInput_RightShoulder;
     private readonly InputAction m_TabletInput_RightTrigger;
-    private readonly InputAction m_TabletInput_PointerPress;
-    private readonly InputAction m_TabletInput_Pointer;
-    private readonly InputAction m_TabletInput_NormalizedPointer;
     /// <summary>
     /// Provides access to input actions defined in input action map "TabletInput".
     /// </summary>
@@ -1733,18 +1699,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @RightTrigger => m_Wrapper.m_TabletInput_RightTrigger;
         /// <summary>
-        /// Provides access to the underlying input action "TabletInput/PointerPress".
-        /// </summary>
-        public InputAction @PointerPress => m_Wrapper.m_TabletInput_PointerPress;
-        /// <summary>
-        /// Provides access to the underlying input action "TabletInput/Pointer".
-        /// </summary>
-        public InputAction @Pointer => m_Wrapper.m_TabletInput_Pointer;
-        /// <summary>
-        /// Provides access to the underlying input action "TabletInput/NormalizedPointer".
-        /// </summary>
-        public InputAction @NormalizedPointer => m_Wrapper.m_TabletInput_NormalizedPointer;
-        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_TabletInput; }
@@ -1824,15 +1778,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @RightTrigger.started += instance.OnRightTrigger;
             @RightTrigger.performed += instance.OnRightTrigger;
             @RightTrigger.canceled += instance.OnRightTrigger;
-            @PointerPress.started += instance.OnPointerPress;
-            @PointerPress.performed += instance.OnPointerPress;
-            @PointerPress.canceled += instance.OnPointerPress;
-            @Pointer.started += instance.OnPointer;
-            @Pointer.performed += instance.OnPointer;
-            @Pointer.canceled += instance.OnPointer;
-            @NormalizedPointer.started += instance.OnNormalizedPointer;
-            @NormalizedPointer.performed += instance.OnNormalizedPointer;
-            @NormalizedPointer.canceled += instance.OnNormalizedPointer;
         }
 
         /// <summary>
@@ -1898,15 +1843,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
             @RightTrigger.started -= instance.OnRightTrigger;
             @RightTrigger.performed -= instance.OnRightTrigger;
             @RightTrigger.canceled -= instance.OnRightTrigger;
-            @PointerPress.started -= instance.OnPointerPress;
-            @PointerPress.performed -= instance.OnPointerPress;
-            @PointerPress.canceled -= instance.OnPointerPress;
-            @Pointer.started -= instance.OnPointer;
-            @Pointer.performed -= instance.OnPointer;
-            @Pointer.canceled -= instance.OnPointer;
-            @NormalizedPointer.started -= instance.OnNormalizedPointer;
-            @NormalizedPointer.performed -= instance.OnNormalizedPointer;
-            @NormalizedPointer.canceled -= instance.OnNormalizedPointer;
         }
 
         /// <summary>
@@ -2277,12 +2213,19 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRight(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "TouchPos" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "TouchPos1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTouchPos(InputAction.CallbackContext context);
+        void OnTouchPos1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "TouchPos2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTouchPos2(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Gyro" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -2424,27 +2367,6 @@ public partial class @TabletInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRightTrigger(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "PointerPress" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPointerPress(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pointer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPointer(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "NormalizedPointer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnNormalizedPointer(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

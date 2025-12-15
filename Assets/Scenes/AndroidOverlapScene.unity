@@ -3108,18 +3108,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TabletData:
-    HeaderAndTouch: 16
+    Header: 16
     Buttons: 0
+    Touch: 0
     LStickX: 0
     LStickY: 0
     RStickX: 0
     RStickY: 0
-    TouchX: 0
-    TouchY: 0
     GyroX: 0
     GyroY: 0
     GyroZ: 0
     GyroW: 0
+    Touch0X: 0
+    Touch0Y: 0
+    Touch1X: 0
+    Touch1Y: 0
+    Touch2X: 0
+    Touch2Y: 0
+    Touch3X: 0
+    Touch3Y: 0
+    Touch4X: 0
+    Touch4Y: 0
+    Touch5X: 0
+    Touch5Y: 0
+    Touch6X: 0
+    Touch6Y: 0
+    Touch7X: 0
+    Touch7Y: 0
+    Touch8X: 0
+    Touch8Y: 0
+    Touch9X: 0
+    Touch9Y: 0
   IsDirty: 0
 --- !u!4 &954972750
 Transform:

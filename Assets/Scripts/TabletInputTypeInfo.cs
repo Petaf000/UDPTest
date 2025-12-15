@@ -73,19 +73,45 @@ public struct TabletInputTypeInfo : IInputStateTypeInfo
     public bool select;
 
     // タッチしてるかどうか
-    [InputControl(name = "TouchPress", layout = "Button", bit = 16)]
-    public bool touchPress;
+    
 
     // ジャイロ
     [InputControl(name = "Gyro", layout = "Quaternion")]
     public Quaternion gyro;
 
-    // タッチ座標
-    [InputControl(name = "TouchPos", layout = "Vector2")]
-    public Vector2 touchPos;
+    // タッチ座標/タッチしてるか
+    [InputControl(name = "TouchPos0", layout = "Vector2")] public Vector2 touchPos0;
+    [InputControl(name = "TouchPress0", layout = "Button", bit = 16)] public bool touchPress0;
 
-    [InputControl(name = "NormalizedTouchPos", layout = "Vector2")]
-    public Vector2 normalizedTouchPos;
+    [InputControl(name = "TouchPos1", layout = "Vector2")] public Vector2 touchPos1;
+    [InputControl(name = "TouchPress1", layout = "Button", bit = 17)] public bool touchPress1;
+
+    [InputControl(name = "TouchPos2", layout = "Vector2")] public Vector2 touchPos2;
+    [InputControl(name = "TouchPress2", layout = "Button", bit = 18)] public bool touchPress2;
+
+    [InputControl(name = "TouchPos3", layout = "Vector2")] public Vector2 touchPos3;
+    [InputControl(name = "TouchPress3", layout = "Button", bit = 19)] public bool touchPress3;
+
+    [InputControl(name = "TouchPos4", layout = "Vector2")] public Vector2 touchPos4;
+    [InputControl(name = "TouchPress4", layout = "Button", bit = 20)] public bool touchPress4;
+
+    [InputControl(name = "TouchPos5", layout = "Vector2")] public Vector2 touchPos5;
+    [InputControl(name = "TouchPress5", layout = "Button", bit = 21)] public bool touchPress5;
+
+    [InputControl(name = "TouchPos6", layout = "Vector2")] public Vector2 touchPos6;
+    [InputControl(name = "TouchPress6", layout = "Button", bit = 22)] public bool touchPress6;
+
+    [InputControl(name = "TouchPos7", layout = "Vector2")] public Vector2 touchPos7;
+    [InputControl(name = "TouchPress7", layout = "Button", bit = 23)] public bool touchPress7;
+
+    [InputControl(name = "TouchPos8", layout = "Vector2")] public Vector2 touchPos8;
+    [InputControl(name = "TouchPress8", layout = "Button", bit = 24)] public bool touchPress8;
+
+    [InputControl(name = "TouchPos9", layout = "Vector2")] public Vector2 touchPos9;
+    [InputControl(name = "TouchPress9", layout = "Button", bit = 25)] public bool touchPress9;
+
+    [InputControl(name = "TouchPress", layout = "Button", bit = 26)]
+    public bool touchPress;// 何かタッチしてたらtrue
 }
 
 [InputControlLayout(stateType = typeof(TabletInputTypeInfo), displayName = "Tablet Controller")]
@@ -117,9 +143,10 @@ public class TabletDevice : InputDevice
 
     public QuaternionControl gyro { get; private set; }
 
-    public Vector2Control touchPos { get; private set; }
-    public Vector2Control normalizedTouchPos { get; private set; }
+    // タッチ部
     public ButtonControl press { get; private set; }
+    public Vector2Control[] touchPositions { get; private set; }
+    public ButtonControl[] touchPresses { get; private set; }
 
     protected override void FinishSetup()
     {
@@ -151,9 +178,16 @@ public class TabletDevice : InputDevice
 
         gyro = GetChildControl<QuaternionControl>("Gyro");
 
-        touchPos = GetChildControl<Vector2Control>("TouchPos");
-        normalizedTouchPos = GetChildControl<Vector2Control>("NormalizedTouchPos");
         press = GetChildControl<ButtonControl>("TouchPress");
+
+        touchPositions = new Vector2Control[10];
+        touchPresses = new ButtonControl[10];
+
+        for (int i = 0; i < 10; i++)
+        {
+            touchPositions[i] = GetChildControl<Vector2Control>($"TouchPos{i}");
+            touchPresses[i] = GetChildControl<ButtonControl>($"TouchPress{i}");
+        }
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

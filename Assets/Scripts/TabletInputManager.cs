@@ -1,5 +1,7 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
 {
@@ -10,6 +12,8 @@ public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
 
     protected override void OnInitialize()
     {
+        EnhancedTouchSupport.Enable();
+
         _inputActions = new TabletInputAction();
         _inputActions.Enable();
 
@@ -42,15 +46,6 @@ public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
             TabletData.Set(AxisID.RightStickY, 0f);
             IsDirty = true;
         };
-
-        _inputActions.TabletInput.Pointer.performed += ctx => { 
-            Vector2 value = ctx.ReadValue<Vector2>();
-            TabletData.Set(AxisID.TouchX, value.x);
-            TabletData.Set(AxisID.TouchY, value.y);
-            IsDirty = true;
-        };
-        _inputActions.TabletInput.PointerPress.performed += ctx => { TabletData.Set(ButtonID.Touch, true); IsDirty = true; };
-        _inputActions.TabletInput.PointerPress.canceled += ctx => { TabletData.Set(ButtonID.Touch, false); IsDirty = true; };
 
         _inputActions.TabletInput.LeftStickPress.performed += ctx => { TabletData.Set(ButtonID.L3, true); IsDirty = true; };
         _inputActions.TabletInput.LeftStickPress.canceled += ctx => { TabletData.Set(ButtonID.L3, false); IsDirty = true; };
@@ -94,5 +89,34 @@ public class TabletInputManager : SingletonMonoBehaviour<TabletInputManager>
     {
         TabletData.Set(AxisID.Gyro, data);
         IsDirty = true;
+    }
+
+    private void Update()
+    {
+        ushort prevTouchFlags = TabletData.Touch;
+
+        var touches = Touch.activeTouches;
+
+        // リセット
+        for (int i = 0; i < 10; i++)
+        {
+            // SetTouch(index, pressed, pos, w, h)
+            TabletData.Set(i, false, Vector2.zero);
+        }
+
+        // 現在のタッチを埋めていく
+        int count = Mathf.Min(touches.Count, 10);
+        for (int i = 0; i < count; i++)
+        {
+            var t = touches[i];
+
+            // タッチ中はTrue, 座標を送る
+            TabletData.Set(i, true, t.screenPosition);
+        }
+
+        if (count > 0 || TabletData.Touch != prevTouchFlags)
+        {
+            IsDirty = true;
+        }
     }
 }

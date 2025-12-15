@@ -11,16 +11,25 @@ public class TabletTouchInjector : MonoBehaviour
     [SerializeField] private PlayerID deviceIndex = PlayerID.Player1;
     [SerializeField] private RectTransform cursorIcon;
 
-    private GameObject currentPressedObject;
-    private GameObject currentDraggingObject;
-    private GameObject currentHoveredObject;
-    private PointerEventData pointerData;
+    // --- マルチタッチ用の状態管理クラス ---
+    private class TouchState
+    {
+        public PointerEventData pointerData;
+        public GameObject currentPressedObject;
+        public GameObject currentDraggingObject;
+        public GameObject currentHoveredObject;
+        public bool wasPressed;
+
+        public TouchState(EventSystem eventSystem)
+        {
+            pointerData = new PointerEventData(eventSystem);
+        }
+    }
+
+    private TouchState[] touchStates = new TouchState[10];
     private EventSystem eventSystem;
     private TabletDevice myDevice;
     private Camera uiCamera;
-
-    // 前フレームで押していたかを判定するフラグ
-    private bool wasPressed = false;
 
     void Start()
     {
@@ -31,10 +40,18 @@ public class TabletTouchInjector : MonoBehaviour
             return;
         }
 
-        pointerData = new PointerEventData(eventSystem);
         myDevice = deviceIndex == PlayerID.Player1 ? TabletDeviceDriver.Instance.DeviceP1 : TabletDeviceDriver.Instance.DeviceP2;
         uiCamera = targetRaycaster.eventCamera;
-        pointerData.displayIndex = uiCamera != null ? uiCamera.targetDisplay : 0;
+
+        for (int i = 0; i < 10; i++)
+        {
+            touchStates[i] = new TouchState(eventSystem);
+            // カメラ設定
+            if (uiCamera != null)
+            {
+                touchStates[i].pointerData.displayIndex = uiCamera != null ? uiCamera.targetDisplay : 0;
+            }
+        }
     }
 
     void Update()
@@ -44,164 +61,168 @@ public class TabletTouchInjector : MonoBehaviour
         float targetWidth = (uiCamera != null) ? uiCamera.pixelWidth : Screen.width;
         float targetHeight = (uiCamera != null) ? uiCamera.pixelHeight : Screen.height;
 
-        // 1. 座標の計算
-        Vector2 normalizedPosition = myDevice.normalizedTouchPos.ReadValue();
-        Vector2 screenPos = new Vector2(
-            normalizedPosition.x * targetWidth,
-            normalizedPosition.y * targetHeight
-        );
-
-        bool isPressed = myDevice.press.isPressed;
-
-        if (cursorIcon != null && isPressed)
+        for (int i = 0; i < 10; i++)
         {
-            Camera uiCamera = targetRaycaster.eventCamera;
+            // InputSystemから各指の情報を取得
+            Vector2 touchPos = myDevice.touchPositions[i].ReadValue();
+            bool isPressed = myDevice.touchPresses[i].isPressed;
+
+            // スクリーン座標変換
+            Vector2 screenPos = new Vector2(touchPos.x, touchPos.y);
+
+            // 指ごとの処理を実行
+            ProcessTouch(i, screenPos, isPressed);
+        }
+    }
+
+
+    private void ProcessTouch(int index, Vector2 screenPos, bool isPressed)
+    {
+        TouchState state = touchStates[index];
+        PointerEventData pData = state.pointerData;
+
+        // --- 1. カーソル表示 (Index 0 のみ) ---
+        if (index == 0 && cursorIcon != null && isPressed)
+        {
             Vector2 localPoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 cursorIcon.parent as RectTransform,
-                pointerData.position,
+                screenPos, // 計算済みのスクリーン座標を使用
                 uiCamera,
                 out localPoint
             );
-            cursorIcon.anchoredPosition = localPoint;
+
+            // Z軸をリセットしてUI裏隠れを防止
+            cursorIcon.localPosition = new Vector3(localPoint.x, localPoint.y, 0);
+            cursorIcon.gameObject.SetActive(true);
+        }
+        else if (index == 0 && cursorIcon != null && !isPressed)
+        {
+            // 離している間は見えなくするならコメントアウトを外す
+            // cursorIcon.gameObject.SetActive(false);
         }
 
-        // 2. Delta（移動量）の計算修正
-        // タッチした瞬間(isPressed == true && wasPressed == false)は
-        // 前回位置が遠くにある可能性があるため、Deltaを0にする
+        // --- 2. Delta計算 ---
         if (isPressed)
         {
-            if (!wasPressed)
+            if (!state.wasPressed)
             {
-                // 押し始め：移動量はゼロ
-                pointerData.delta = Vector2.zero;
+                pData.delta = Vector2.zero; // 押し始め
             }
             else
             {
-                // ドラッグ中：現在地 - 前回地
-                pointerData.delta = screenPos - pointerData.position;
+                pData.delta = screenPos - pData.position; // 移動中
             }
-            // 位置を更新
-            pointerData.position = screenPos;
+            pData.position = screenPos;
         }
         else
         {
-            // 押していない時も位置は追跡しておくが、Deltaは発生させない
-            pointerData.delta = Vector2.zero;
-            pointerData.position = screenPos;
+            pData.delta = Vector2.zero;
+            pData.position = screenPos;
         }
 
+        // --- 3. Raycast実行 ---
         List<RaycastResult> results = new List<RaycastResult>();
-        // 3. Raycast実行
-        targetRaycaster.Raycast(pointerData, results);
+        targetRaycaster.Raycast(pData, results);
 
-        // Raycast結果を更新
-        if (results.Count > 0)
-        {
-            pointerData.pointerCurrentRaycast = results[0];
-        }
-        else
-        {
-            // 何も当たってない場合はクリアしておく
-            pointerData.pointerCurrentRaycast = new RaycastResult();
-        }
+        if (results.Count > 0) pData.pointerCurrentRaycast = results[0];
+        else pData.pointerCurrentRaycast = new RaycastResult();
 
         GameObject hitObjectRaw = results.Count > 0 ? results[0].gameObject : null;
 
-        // ホバー処理（Enter/Exit）
-        HandleHover(hitObjectRaw);
+        // ホバー処理
+        HandleHover(state, hitObjectRaw);
 
-        // 4. クリック・ドラッグ処理
+        // --- 4. Press/Drag処理 ---
         if (isPressed)
         {
-            PressProcess(hitObjectRaw);
+            PressProcess(state, hitObjectRaw);
         }
         else
         {
-            ReleaseProcess(hitObjectRaw);
+            ReleaseProcess(state, hitObjectRaw);
         }
 
-        // 最後にフラグを更新
-        wasPressed = isPressed;
+        // 前フレーム状態更新
+        state.wasPressed = isPressed;
     }
 
-    private void HandleHover(GameObject hitObjectRaw)
+    // --- 以下、状態管理オブジェクト(state)を受け取るように変更したメソッド群 ---
+
+    private void HandleHover(TouchState state, GameObject hitObjectRaw)
     {
         GameObject hitObject = ExecuteEvents.GetEventHandler<IPointerEnterHandler>(hitObjectRaw);
         if (hitObject == null) hitObject = hitObjectRaw;
 
-        if (hitObject != currentHoveredObject)
+        if (hitObject != state.currentHoveredObject)
         {
-            if (currentHoveredObject != null)
-                ExecuteEvents.Execute(currentHoveredObject, pointerData, ExecuteEvents.pointerExitHandler);
+            if (state.currentHoveredObject != null)
+                ExecuteEvents.Execute(state.currentHoveredObject, state.pointerData, ExecuteEvents.pointerExitHandler);
 
             if (hitObject != null)
-                ExecuteEvents.Execute(hitObject, pointerData, ExecuteEvents.pointerEnterHandler);
+                ExecuteEvents.Execute(hitObject, state.pointerData, ExecuteEvents.pointerEnterHandler);
 
-            currentHoveredObject = hitObject;
-            pointerData.pointerEnter = hitObject;
+            state.currentHoveredObject = hitObject;
+            state.pointerData.pointerEnter = hitObject;
         }
     }
 
-    private void PressProcess(GameObject hitObjectRaw)
+    private void PressProcess(TouchState state, GameObject hitObjectRaw)
     {
-        // まだ何も押していない（押し始め）
-        if (currentPressedObject == null)
+        // 押し始め
+        if (state.currentPressedObject == null)
         {
             if (hitObjectRaw == null) return;
 
-            // 【重要】スライダー等のために、押した瞬間のRaycast情報をPressRaycastに保存する
-            pointerData.pointerPressRaycast = pointerData.pointerCurrentRaycast;
+            state.pointerData.pointerPressRaycast = state.pointerData.pointerCurrentRaycast;
 
             GameObject downHandler = ExecuteEvents.GetEventHandler<IPointerDownHandler>(hitObjectRaw);
             GameObject target = downHandler != null ? downHandler : hitObjectRaw;
 
-            ExecuteEvents.Execute(target, pointerData, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.Execute(target, state.pointerData, ExecuteEvents.pointerDownHandler);
 
-            currentPressedObject = target;
-            pointerData.pointerPress = target;
+            state.currentPressedObject = target;
+            state.pointerData.pointerPress = target;
 
-            // ドラッグ開始判定
+            // ドラッグ開始
             GameObject dragHandler = ExecuteEvents.GetEventHandler<IDragHandler>(hitObjectRaw);
             if (dragHandler != null)
             {
-                ExecuteEvents.Execute(dragHandler, pointerData, ExecuteEvents.beginDragHandler);
-                currentDraggingObject = dragHandler;
+                ExecuteEvents.Execute(dragHandler, state.pointerData, ExecuteEvents.beginDragHandler);
+                state.currentDraggingObject = dragHandler;
             }
         }
         else
         {
-            // 既に何かを押している（ドラッグ中）
-            if (currentDraggingObject != null)
+            // ドラッグ中
+            if (state.currentDraggingObject != null)
             {
-                ExecuteEvents.Execute(currentDraggingObject, pointerData, ExecuteEvents.dragHandler);
+                ExecuteEvents.Execute(state.currentDraggingObject, state.pointerData, ExecuteEvents.dragHandler);
             }
         }
     }
 
-    private void ReleaseProcess(GameObject hitObjectRaw)
+    private void ReleaseProcess(TouchState state, GameObject hitObjectRaw)
     {
-        if (currentPressedObject != null)
+        if (state.currentPressedObject != null)
         {
-            ExecuteEvents.Execute(currentPressedObject, pointerData, ExecuteEvents.pointerUpHandler);
+            ExecuteEvents.Execute(state.currentPressedObject, state.pointerData, ExecuteEvents.pointerUpHandler);
 
             GameObject clickHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(hitObjectRaw);
 
-            // 同じオブジェクト上で離されたらクリックとみなす
-            if (currentPressedObject == clickHandler)
+            if (state.currentPressedObject == clickHandler)
             {
-                ExecuteEvents.Execute(currentPressedObject, pointerData, ExecuteEvents.pointerClickHandler);
+                ExecuteEvents.Execute(state.currentPressedObject, state.pointerData, ExecuteEvents.pointerClickHandler);
             }
 
-            if (currentDraggingObject != null)
+            if (state.currentDraggingObject != null)
             {
-                ExecuteEvents.Execute(currentDraggingObject, pointerData, ExecuteEvents.endDragHandler);
-                currentDraggingObject = null;
+                ExecuteEvents.Execute(state.currentDraggingObject, state.pointerData, ExecuteEvents.endDragHandler);
+                state.currentDraggingObject = null;
             }
 
-            pointerData.pointerPress = null;
-            currentPressedObject = null;
-            // pointerPressRaycastはクリアしなくてよい（次のPressで上書きされるため）
+            state.pointerData.pointerPress = null;
+            state.currentPressedObject = null;
         }
     }
 }

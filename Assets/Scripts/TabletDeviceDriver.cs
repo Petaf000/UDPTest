@@ -106,25 +106,25 @@ public class TabletDeviceDriver : SingletonMonoBehaviour<TabletDeviceDriver>
             );
 
             // --- É^ÉbÉ` (ushort -> 0-1ê≥ãKâª -> Screenç¿ïW) ---
-            bool isTouching = (data.HeaderAndTouch & 0x80) != 0;
+            for (int i = 0; i < 10; i++)
+            {
+                (ushort, ushort) touchPos = data.GetTouchPos(i);
+                bool isPressed = data.GetTouch(i);
 
-            targetDevice.press.WriteValueIntoEvent(isTouching ? 1f : 0f, stateEvent);
-
-            targetDevice.normalizedTouchPos.WriteValueIntoEvent(
+                targetDevice.touchPresses[i].WriteValueIntoEvent(isPressed ? 1f : 0f, stateEvent);
+                targetDevice.touchPositions[i].WriteValueIntoEvent(
                 new Vector2(
-                    DecodeUShort(data.TouchX),
-                    DecodeUShort(data.TouchY)
-                ),
-                stateEvent
-            );
+                    DecodeUShort(touchPos.Item1) * Screen.width,
+                    DecodeUShort(touchPos.Item2) * Screen.height
+                ), stateEvent);
+            }
 
-            targetDevice.touchPos.WriteValueIntoEvent(
-                new Vector2(
-                    DecodeUShort(data.TouchX) * Screen.width,
-                    DecodeUShort(data.TouchY) * Screen.height
-                ),
-                stateEvent
-            );
+            // Åyí«â¡ÅzAny Touch îªíË
+            // TouchFlags Ç™ 0 à»äOÇ»ÇÁÅuâΩÇ©ÇµÇÁêGÇÍÇƒÇ¢ÇÈÅv
+            bool isAnyTouch = data.Touch != 0;
+
+            // Bit 26 (TouchPress) Ç…èëÇ´çûÇﬁ
+            targetDevice.press.WriteValueIntoEvent(isAnyTouch ? 1f : 0f, stateEvent);
 
             InputSystem.QueueEvent(stateEvent);
         }

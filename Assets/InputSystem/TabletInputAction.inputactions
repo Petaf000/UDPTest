@@ -79,9 +79,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "TouchPos",
+                    "name": "TouchPos1",
                     "type": "Value",
                     "id": "afc67fac-07ae-49cc-af33-97734cec48ee",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "TouchPos2",
+                    "type": "Value",
+                    "id": "c799dca8-2f8b-4ce7-ba78-815aa2d3807e",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -189,11 +198,22 @@
                 {
                     "name": "",
                     "id": "3c566b01-939c-4265-ae2c-a497680e5f8d",
-                    "path": "<TabletController>/TouchPos",
+                    "path": "<TabletController>/TouchPos0",
                     "interactions": "",
                     "processors": "",
                     "groups": ";TabletController",
-                    "action": "TouchPos",
+                    "action": "TouchPos1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "44444a0c-ca50-42f5-ac89-a5d8f811e5d9",
+                    "path": "<TabletController>/TouchPos1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";TabletController",
+                    "action": "TouchPos2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -375,33 +395,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "PointerPress",
-                    "type": "Button",
-                    "id": "132f7886-f969-4ec0-9cf7-63bf5e505424",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Pointer",
-                    "type": "Value",
-                    "id": "13be0704-2ad0-462e-bd46-a95652faec28",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "NormalizedPointer",
-                    "type": "Value",
-                    "id": "731ab567-f130-48e6-9514-23dec1394368",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -600,39 +593,6 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "RightTrigger",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e476820c-e22d-4f08-a96a-8bea8dfb489d",
-                    "path": "<Pointer>/press",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Touch",
-                    "action": "PointerPress",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ce84f6c3-a7ec-443e-b9c3-76b05cf38fb8",
-                    "path": "<Pointer>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Touch",
-                    "action": "Pointer",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d9618400-14d4-46e4-885c-0d1af45a419b",
-                    "path": "<TabletController>/NormalizedTouchPos",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";TabletController",
-                    "action": "NormalizedPointer",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

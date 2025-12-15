@@ -37,16 +37,14 @@ public class PCReceiver : MonoBehaviour
         // InputSystemへの注入はメインスレッドで行う必要がある
         foreach (var kvp in latestInputs)
         {
-            PlayerID playerId = kvp.Key;
-            TabletData data = kvp.Value;
-
-            TabletDeviceDriver.Instance.InjectData(playerId, data);
+            TabletDeviceDriver.Instance.InjectData(kvp.Key, kvp.Value);
         }
     }
 
     private async void StartUdpReceiver()
     {
         udpServer = new UdpClient(listenPort);
+        udpServer.Client.ReceiveBufferSize = 65536;
         Debug.Log($"UDP Receiver Started on port {listenPort}");
 
         while (isRunning)
@@ -75,11 +73,9 @@ public class PCReceiver : MonoBehaviour
         Debug.Log("受信");
         var data = TabletData.Deserialize(bytes);
 
-        PlayerID playerId = (PlayerID)(data.HeaderAndTouch & 0x7F);
+        PlayerID playerId = (PlayerID)(data.Header & 0x7F);
         if (playerId != PlayerID.Player1 && playerId != PlayerID.Player2) return;
 
         latestInputs.AddOrUpdate(playerId, data, (key, oldValue) => data);
-
-        //lastReceiveTimes.AddOrUpdate(playerId, DateTime.Now, (key, oldValue) => DateTime.Now);
     }
 }
