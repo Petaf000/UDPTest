@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class PCReceiver : MonoBehaviour
     [SerializeField] private int listenPort = 5000;
 
     private UdpClient udpServer;
+    private Thread receiveThread;
     private bool isRunning = true;
 
     private ConcurrentDictionary<PlayerID, TabletData> latestInputs = new ConcurrentDictionary<PlayerID, TabletData>();
@@ -27,9 +29,7 @@ public class PCReceiver : MonoBehaviour
 
     void OnDisable()
     {
-        isRunning = false;
-        udpServer?.Close();
-        udpServer?.Dispose();
+        StopUdpReceiver();
     }
 
     private void Update()
@@ -41,36 +41,62 @@ public class PCReceiver : MonoBehaviour
         }
     }
 
-    private async void StartUdpReceiver()
+    private void StartUdpReceiver()
     {
+        StopUdpReceiver();// 一応
+
         udpServer = new UdpClient(listenPort);
-        udpServer.Client.ReceiveBufferSize = 65536;
-        Debug.Log($"UDP Receiver Started on port {listenPort}");
+        isRunning = true;
+        receiveThread = new Thread(ReceiveLoop);
+        receiveThread.IsBackground = true;
+        receiveThread.Start();
+
+        Debug.Log($"UDP Thread Started on port {listenPort}");
+    }
+
+    private void StopUdpReceiver()
+    {
+        isRunning = false;
+        if (udpServer != null)
+        {
+            udpServer.Close();
+            udpServer = null;
+        }
+        if (receiveThread != null && receiveThread.IsAlive)
+        {
+            receiveThread.Abort();
+        }
+    }
+
+    private void ReceiveLoop()
+    {
+        IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
 
         while (isRunning)
         {
             try
             {
-                var result = await udpServer.ReceiveAsync();
+                if (udpServer == null) break;
 
-                // 受信処理
-                DeserializePacket(result.Buffer);
+                // ここで待機するが、別スレッドなのでUnityは止まらない
+                byte[] bytes = udpServer.Receive(ref remoteEP);
+
+                if (bytes != null && bytes.Length > 0)
+                {
+                    DeserializePacket(bytes);
+                }
             }
-            catch (ObjectDisposedException)
+            catch (SocketException) { /* 終了時など */ }
+            catch (ThreadAbortException) { /* 終了時 */ }
+            catch (Exception e)
             {
-                // 終了時に発生するので無視
-                break;
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"UDP Receive Error: {e.Message}");
+                Debug.LogError($"UDP Thread Error: {e.Message}");
             }
         }
     }
 
     private void DeserializePacket(byte[] bytes)
     {
-        Debug.Log("受信");
         var data = TabletData.Deserialize(bytes);
 
         PlayerID playerId = (PlayerID)(data.Header & 0x7F);

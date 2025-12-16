@@ -33,23 +33,32 @@ public class TabletController : MonoBehaviour
     }
     private void Update()
     {
-        bool isKeepAliveTime = Time.time - _lastSendTime >= KeepAliveInterval;
+        float timeSinceLast = Time.time - _lastSendTime;
 
-        if ((TabletInputManager.Instance.IsDirty || isKeepAliveTime) && Time.time - _lastSendTime >= SendInterval)
+        bool shouldSend = false;
+
+        if (TabletInputManager.Instance.IsDirty)
+        {
+            if (timeSinceLast >= SendInterval) shouldSend = true;
+        }
+        else
+        {
+            if (timeSinceLast >= KeepAliveInterval) shouldSend = true;
+        }
+
+        if (shouldSend)
         {
             sender.SendPacket(TabletInputManager.Instance.TabletData.Serialize());
-            TabletInputManager.Instance.IsDirty = false; // フラグを下ろす
+
+            TabletInputManager.Instance.IsDirty = false;
             _lastSendTime = Time.time;
 
-            // FPSモード用にジャイロのオンオフハードコードしてます
+            // LBボタン処理 (変更なし)
             bool isLbPressed = TabletDeviceDriver.Instance.GetButton(TabletInputManager.Instance.TabletData, ButtonID.LB);
             if (isLbPressed && !wasLbPressed)
             {
-                if (picoWController.isSensorOn)
-                    picoWController?.StopSensorStream();
-                else
-                    picoWController?.StartSensorStream();
-                Debug.Log($"LB Button Pressed: Sensor Stream {(picoWController.isSensorOn ? "Stopped" : "Started")}");
+                if (picoWController.isSensorOn) picoWController?.StopSensorStream();
+                else picoWController?.StartSensorStream();
             }
             wasLbPressed = isLbPressed;
         }

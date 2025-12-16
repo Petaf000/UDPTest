@@ -113,26 +113,31 @@ public struct TabletData
     public void Set(int index, bool isTouched, Vector2 position)
     {
         if (index < 0 || index >= 10) return;
-        
-        // タッチフラグの設定
+
+        // 1. フラグの設定 (常に実行)
         if (isTouched) Touch |= (ushort)(1 << index);
         else Touch &= (ushort)~(1 << index);
 
-        // 座標の設定
-        ushort px = PixelToUShort(position.x, Screen.width);
-        ushort py = PixelToUShort(position.y, Screen.height);
-        switch (index)
+        // 2. 座標の設定 (タッチしている時だけ更新！)
+        // これにより、isActive = false で呼んだ時は座標が維持されます
+        if (isTouched)
         {
-            case 0: Touch0X = px; Touch0Y = py; break;
-            case 1: Touch1X = px; Touch1Y = py; break;
-            case 2: Touch2X = px; Touch2Y = py; break;
-            case 3: Touch3X = px; Touch3Y = py; break;
-            case 4: Touch4X = px; Touch4Y = py; break;
-            case 5: Touch5X = px; Touch5Y = py; break;
-            case 6: Touch6X = px; Touch6Y = py; break;
-            case 7: Touch7X = px; Touch7Y = py; break;
-            case 8: Touch8X = px; Touch8Y = py; break;
-            case 9: Touch9X = px; Touch9Y = py; break;
+            ushort px = PixelToUShort(position.x, Screen.width);
+            ushort py = PixelToUShort(position.y, Screen.height);
+
+            switch (index)
+            {
+                case 0: Touch0X = px; Touch0Y = py; break;
+                case 1: Touch1X = px; Touch1Y = py; break;
+                case 2: Touch2X = px; Touch2Y = py; break;
+                case 3: Touch3X = px; Touch3Y = py; break;
+                case 4: Touch4X = px; Touch4Y = py; break;
+                case 5: Touch5X = px; Touch5Y = py; break;
+                case 6: Touch6X = px; Touch6Y = py; break;
+                case 7: Touch7X = px; Touch7Y = py; break;
+                case 8: Touch8X = px; Touch8Y = py; break;
+                case 9: Touch9X = px; Touch9Y = py; break;
+            }
         }
     }
 
